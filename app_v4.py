@@ -253,11 +253,19 @@ def parse_vulnerabilities_pages(connect, base_url, start_page=1, end_page=108):
             vulnerability_name = vulnerability_name_tag.a.text.strip() if vulnerability_name_tag and vulnerability_name_tag.a else None
 
             # Извлечение названия продукта
-            product_tag = container.find_all('div', class_='table__col')[2]
-            product_name = product_tag.a.text.strip() if product_tag and product_tag.a else None
+            product_tags = container.find_all('div', class_='table__col')
+            if len(product_tags) > 2:
+                product_tag = product_tags[2]
+                product_name = product_tag.a.text.strip() if product_tag and product_tag.a else None
+            else:
+                product_name = None
+
+            # Устанавливаем значение по умолчанию для product_name, если оно отсутствует
+            if not product_name:
+                product_name = "Unknown Product"
 
             # Проверяем, что все данные есть перед вставкой
-            if kaspersky_id and vulnerability_name and product_name:
+            if kaspersky_id and vulnerability_name:
                 insert_vulnerability(connect, vulnerability_name, product_name, kaspersky_id)
 
 
